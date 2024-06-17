@@ -6,6 +6,7 @@ export function injectHiddenIFrame(
   data_id = "",
   should_sandbox = false,
   sandbox_attributes = "",
+  htmlVisualizer = false,
 ) {
   let iframe: HTMLIFrameElement = document.createElement("iframe");
   iframe.id = id;
@@ -14,9 +15,23 @@ export function injectHiddenIFrame(
   // Experimental feature, not supported by all browsers
   // @ts-ignore
   iframe.credentialless = true;
-  iframe.style.width = width;
-  iframe.style.height = "200px";
-  iframe.style.display = "none";
+
+  if (htmlVisualizer) {
+    iframe.style.position = "fixed"; // Ensures the iframe stays in place during scrolling
+    iframe.style.top = "0";
+    iframe.style.left = "0";
+    iframe.style.width = "100%";
+    iframe.style.height = "100vh"; // 100% of the viewport height
+    iframe.style.border = "none";
+    document.body.style.margin = "0";
+    document.body.style.padding = "0";
+    document.documentElement.style.height = "100%"; // Ensures the body can use full height
+    document.body.style.height = "100%";
+  } else {
+    iframe.style.width = width;
+    iframe.style.height = "200px";
+    iframe.style.display = "none";
+  }
   if (should_sandbox) {
     iframe.setAttribute("sandbox", "");
     if (sandbox_attributes !== "")

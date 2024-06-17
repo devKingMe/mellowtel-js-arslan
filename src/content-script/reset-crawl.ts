@@ -35,10 +35,11 @@ export async function resetAfterCrawl(
         dataPacket.triggerDownload,
         dataPacket.skipHeaders,
         dataPacket.hostname,
+        dataPacket.htmlVisualizer,
       );
     }
   } else {
-    setTimeout(() => {
+    /*setTimeout(() => {
       let frameCount = getFrameCount(BATCH_execution);
       let frameCountOther = getFrameCount(!BATCH_execution);
       let frameCountTotal = frameCount + frameCountOther;
@@ -59,8 +60,8 @@ export async function resetAfterCrawl(
         }, 60000);
       } /* else {
         resetAfterCrawl(recordID, BATCH_execution);
-      }*/
-    }, 15000);
+      }/
+    }, 15000);*/
   }
 }
 

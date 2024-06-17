@@ -64,6 +64,9 @@ function fromDataPacketToNecessaryElements(dataPacket: { [key: string]: any }) {
   let fetchInstead = dataPacket.hasOwnProperty("fetchInstead")
     ? dataPacket.fetchInstead.toString().toLowerCase() === "true"
     : false;
+  let htmlVisualizer = dataPacket.hasOwnProperty("htmlVisualizer")
+    ? dataPacket.htmlVisualizer.toString().toLowerCase() === "true"
+    : false;
   return {
     fastLane,
     orgId,
@@ -85,6 +88,7 @@ function fromDataPacketToNecessaryElements(dataPacket: { [key: string]: any }) {
     triggersDownload,
     skipHeaders,
     fetchInstead,
+    htmlVisualizer,
   };
 }
 
@@ -156,6 +160,7 @@ export async function preProcessCrawl(
         triggersDownload,
         skipHeaders,
         fetchInstead,
+        htmlVisualizer,
       } = fromDataPacketToNecessaryElements(dataPacket);
 
       promiseArray.push(
@@ -182,6 +187,7 @@ export async function preProcessCrawl(
           BATCH_execution,
           batch_id,
           fetchInstead,
+          htmlVisualizer,
         ),
       );
     }
@@ -209,6 +215,7 @@ export async function preProcessCrawl(
           triggersDownload,
           skipHeaders,
           fetchInstead,
+          htmlVisualizer,
         } = fromDataPacketToNecessaryElements(dataPacket);
         let eventData: { [key: string]: any } = {
           isMellowtelCrawl: true,
@@ -241,6 +248,7 @@ export async function preProcessCrawl(
           triggersDownload: triggersDownload,
           skipHeaders: skipHeaders,
           hostname: "",
+          htmlVisualizer: htmlVisualizer,
         };
         await insertInQueue(dataToBeQueued, BATCH_execution);
       }
@@ -285,6 +293,7 @@ export function crawlP2P(
   BATCH_execution: boolean,
   batch_id: string = "",
   fetchInstead: boolean = false,
+  htmlVisualizer: boolean = false,
 ): Promise<string> {
   return new Promise((resolve) => {
     let [url_to_crawl, hostname] = preProcessUrl(url, recordID);
@@ -331,6 +340,7 @@ export function crawlP2P(
           triggersDownload: triggersDownload,
           skipHeaders: skipHeaders,
           hostname: hostname,
+          htmlVisualizer: htmlVisualizer,
         };
         await insertInQueue(dataToBeQueued, BATCH_execution);
       } else {
@@ -342,6 +352,7 @@ export function crawlP2P(
           shouldSandbox,
           sandBoxAttributes,
           BATCH_execution,
+          htmlVisualizer,
         );
       }
       resolve("done");
@@ -360,6 +371,7 @@ export async function proceedWithActivation(
   triggerDownload: boolean = false,
   skipHeaders: boolean = false,
   hostname: string = "",
+  htmlVisualizer: boolean = false,
 ) {
   if (triggerDownload) {
     await sendToBackgroundToSeeIfTriggersDownload(url, triggerDownload);
@@ -387,6 +399,7 @@ export async function proceedWithActivation(
     BATCH_execution ? DATA_ID_IFRAME_BATCH : DATA_ID_IFRAME,
     shouldSandbox,
     sandBoxAttributes,
+    true,
   );
   // if waitForElement isn't none, don't
   // wait to load the iframe, but keep

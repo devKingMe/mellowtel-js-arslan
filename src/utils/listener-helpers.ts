@@ -84,6 +84,19 @@ export async function setUpBackgroundListeners() {
         }
         sendResponse(sender.tab?.id);
       }
+      // captureCurrentTab
+      if (request.intent === "captureCurrentTab") {
+        // before doing anything, focus on the tab
+        chrome.tabs.update(sender.tab?.id!, {
+          active: true,
+          highlighted: true,
+        });
+        chrome.tabs.captureVisibleTab({ format: "png" }, function (dataUrl) {
+          sendResponse(dataUrl);
+        });
+        return true; // return true to indicate you want to send a response asynchronously
+      }
+
       return true; // return true to indicate you want to send a response asynchronously
     },
   );

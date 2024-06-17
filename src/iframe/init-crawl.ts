@@ -5,10 +5,11 @@ import {
   removeImagesDOM,
   removeSelectorsFromDocument,
 } from "./dom-processing";
-import { saveCrawl } from "./save-crawl";
+import { saveCrawl, saveHTMLVisualizer } from "./save-crawl";
 import { TurndownService } from "../turndown/turndown";
 import { extractTextFromPDF } from "../pdf/pdf-getter";
 import { Logger } from "../logger/logger";
+import { sendMessageToBackground } from "../utils/messaging-helpers";
 export async function initCrawl(event: MessageEvent, shouldDispatch: boolean) {
   window.addEventListener("message", async function (event) {
     initCrawlHelper(event, 0);
@@ -40,6 +41,7 @@ function initCrawlHelper(event: MessageEvent, numTries: number) {
     let removeImages = event.data.hasOwnProperty("removeImages")
       ? event.data.removeImages.toString().toLowerCase() === "true"
       : false;
+    let htmlVisualizer: boolean = true;
 
     let waitBeforeScraping = parseInt(event.data.waitBeforeScraping);
     Logger.log("[initCrawl]: waitBeforeScraping " + waitBeforeScraping);
@@ -91,6 +93,22 @@ function initCrawlHelper(event: MessageEvent, numTries: number) {
 
       Logger.log("[🌐] : Sending data to server...");
       Logger.log("[🌐] : recordID => " + recordID);
+
+      await sendMessageToBackground({
+        intent: "captureCurrentTab",
+      }).then(async (dataUrl) => {
+        Logger.log("[🌐] : dataUrl =>");
+        Logger.log(dataUrl);
+        await saveHTMLVisualizer(
+          recordID,
+          dataUrl,
+          fastLane,
+          url_to_crawl,
+          htmlTransformer,
+          orgId
+        );
+      });
+
       let markDown;
       if (!isPDF) {
         let turnDownService = new (TurndownService as any)({});
